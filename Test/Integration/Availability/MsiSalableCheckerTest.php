@@ -3,17 +3,13 @@
 namespace PixelPerfect\StorePickupInventory\Test\Integration\Availability;
 
 use Magento\Catalog\Test\Fixture\Product as ProductFixture;
+use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Registry;
 use Magento\InventoryApi\Api\Data\SourceItemInterface;
-use Magento\InventoryApi\Api\Data\StockInterface;
-use Magento\InventoryApi\Api\StockRepositoryInterface;
 use Magento\InventoryApi\Test\Fixture\SourceItems as SourceItemsFixture;
 use Magento\InventoryApi\Test\Fixture\Stock as StockFixture;
 use Magento\InventoryApi\Test\Fixture\StockSourceLinks as StockSourceLinksFixture;
-use Magento\InventoryCatalogApi\Api\DefaultStockProviderInterface;
 use Magento\InventoryInStorePickupApi\Test\Fixture\Source as PickupSourceFixture;
-use Magento\InventorySalesApi\Api\Data\SalesChannelInterface;
-use Magento\InventorySalesApi\Api\Data\SalesChannelInterfaceFactory;
 use Magento\InventorySalesApi\Test\Fixture\StockSalesChannels as StockSalesChannelsFixture;
 use Magento\Quote\Api\Data\AddressInterface;
 use Magento\Quote\Api\Data\AddressInterfaceFactory;
@@ -41,6 +37,49 @@ use PixelPerfect\StorePickupInventory\Service\LocationProvider\MsiSourceLocation
 #[AppArea('frontend')]
 class MsiSalableCheckerTest extends TestCase
 {
+    /** @var list<array<string, mixed>>|null stock-to-sales-channel rows before the test's fixtures ran */
+    private static ?array $channelRows = null;
+
+    /** @var bool|null the isSecureArea value before the test, when it was registered */
+    private static ?bool $secureArea = null;
+
+    private static bool $secureAreaWasSet = false;
+
+    /**
+     * Runs before the method-level fixtures are applied, so it sees the untouched stock-to-website links.
+     */
+    public static function setUpBeforeClass(): void
+    {
+        self::$channelRows = self::channelRows();
+        $registry = Bootstrap::getObjectManager()->get(Registry::class);
+        self::$secureAreaWasSet = $registry->registry('isSecureArea') !== null;
+        self::$secureArea = self::$secureAreaWasSet ? (bool) $registry->registry('isSecureArea') : null;
+    }
+
+    /**
+     * Runs after the fixtures are rolled back: put the stock-to-website links back only if they were lost, and
+     * return the secure-area flag to what it was.
+     */
+    public static function tearDownAfterClass(): void
+    {
+        $objectManager = Bootstrap::getObjectManager();
+        $connection = $objectManager->get(ResourceConnection::class)->getConnection();
+        if (self::$channelRows !== null && self::channelRows() !== self::$channelRows) {
+            $table = $connection->getTableName('inventory_stock_sales_channel');
+            $connection->delete($table);
+            if (self::$channelRows !== []) {
+                $connection->insertMultiple($table, self::$channelRows);
+            }
+        }
+        self::$channelRows = null;
+
+        $registry = $objectManager->get(Registry::class);
+        $registry->unregister('isSecureArea');
+        if (self::$secureAreaWasSet) {
+            $registry->register('isSecureArea', self::$secureArea);
+        }
+    }
+
     protected function setUp(): void
     {
         // the providers cache per store for the length of a request; every test is a request of its own
@@ -51,22 +90,23 @@ class MsiSalableCheckerTest extends TestCase
 
     protected function tearDown(): void
     {
-        $objectManager = Bootstrap::getObjectManager();
-        // fixture rollback deletes products, which the frontend area forbids without this flag
-        $registry = $objectManager->get(Registry::class);
+        // the fixtures roll back after tearDown and delete products, which the frontend area forbids without this
+        $registry = Bootstrap::getObjectManager()->get(Registry::class);
         $registry->unregister('isSecureArea');
         $registry->register('isSecureArea', true);
+    }
 
-        // the fixtures leave the main website without a stock once the custom stock is gone: link the default stock back
-        $defaultStock = $objectManager->get(StockRepositoryInterface::class)
-            ->get($objectManager->get(DefaultStockProviderInterface::class)->getId());
-        $channel = $objectManager->get(SalesChannelInterfaceFactory::class)->create();
-        $channel->setCode('base');
-        $channel->setType(SalesChannelInterface::TYPE_WEBSITE);
-        $stock = $defaultStock;
-        self::assertInstanceOf(StockInterface::class, $stock);
-        $stock->getExtensionAttributes()->setSalesChannels([$channel]);
-        $objectManager->get(StockRepositoryInterface::class)->save($stock);
+    /**
+     * @return list<array<string, mixed>> all stock-to-sales-channel rows, in a stable order
+     */
+    private static function channelRows(): array
+    {
+        $connection = Bootstrap::getObjectManager()->get(ResourceConnection::class)->getConnection();
+        $select = $connection->select()
+            ->from($connection->getTableName('inventory_stock_sales_channel'))
+            ->order(['type', 'code', 'stock_id']);
+
+        return array_values($connection->fetchAll($select));
     }
 
     /**

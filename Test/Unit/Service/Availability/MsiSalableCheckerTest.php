@@ -291,4 +291,39 @@ class MsiSalableCheckerTest extends TestCase
         ));
         self::assertSame(['a'], $this->filters[0][1]);
     }
+
+    public function testStandaloneSkuAndTheSameSkuAsConfigurableChildAreSummed(): void
+    {
+        $child = null;
+        $parent = $this->item('conf', 2, false, null, [&$child]);
+        $child = $this->item('conf-red', 1, false, $parent);
+        $this->sourceHas([$this->sourceItem('conf-red', 2)]);
+
+        // 2 as a child (1 x 2) plus 1 standalone = 3 wanted, 2 held
+        self::assertFalse($this->checker()->isAvailable(
+            $this->location(self::SOURCE),
+            $this->request($parent, $child, $this->item('conf-red', 1))
+        ));
+    }
+
+    public function testBundleSelectionQtyIsMultipliedByBundleQty(): void
+    {
+        $selection = null;
+        $bundle = $this->item('bundle', 2, false, null, [&$selection]);
+        $selection = $this->item('bundle-part', 3, false, $bundle);
+        $this->sourceHas([$this->sourceItem('bundle-part', 6)]);
+
+        self::assertTrue($this->checker()->isAvailable($this->location(self::SOURCE), $this->request($bundle, $selection)));
+        self::assertSame(['bundle-part'], $this->filters[0][1]);
+    }
+
+    public function testBundleSelectionIsNotAvailableWhenTheMultipliedQtyExceedsTheSource(): void
+    {
+        $selection = null;
+        $bundle = $this->item('bundle', 2, false, null, [&$selection]);
+        $selection = $this->item('bundle-part', 3, false, $bundle);
+        $this->sourceHas([$this->sourceItem('bundle-part', 5)]);
+
+        self::assertFalse($this->checker()->isAvailable($this->location(self::SOURCE), $this->request($bundle, $selection)));
+    }
 }

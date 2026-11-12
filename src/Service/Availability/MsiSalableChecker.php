@@ -19,6 +19,10 @@ use PixelPerfect\StorePickup\Api\Service\AvailabilityCheckerInterface;
  * Offers a location bound to an inventory source only when every shippable cart item is in stock there.
  *
  * Locations without a stock binding (the config locations) are always offered.
+ *
+ * The check compares the raw source quantity and status only. Reservations, min_qty, backorders and the
+ * stock-level salable flag are not considered (plan and proposal M6); the checkout's own stock validation still
+ * guards order placement.
  */
 class MsiSalableChecker implements AvailabilityCheckerInterface
 {
