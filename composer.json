@@ -11,6 +11,7 @@
         "magento/module-inventory-sales-api": "^1.2",
         "magento/module-inventory-shipping": "^1.2",
         "magento/module-sales": "^103.0",
+        "magento/module-store": "^101.1",
         "php": "^8.3",
         "pixelperfectat/magento2-module-store-pickup": "^0.1@dev"
     },
