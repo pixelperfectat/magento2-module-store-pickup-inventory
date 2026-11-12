@@ -5,7 +5,8 @@ Multi-Source Inventory companion for
 It offers pickup-active inventory sources as pickup locations, offers a location only where the cart is in stock, and
 ships "ready for pickup" orders from that source. The module is not released yet.
 
-![Pickup rates at checkout: only the source that holds the cart item is offered](docs/screenshots/in4-checkout-msi-pickup-rates.jpg)
+![Pickup rates at checkout: only the source that holds the cart item
+is offered](docs/screenshots/hyva-checkout-msi-pickup-rates.jpg)
 
 - Every enabled source with "Use as a Pickup Location" that is assigned to the stock of the store's website becomes a
   pickup location, next to the locations configured in the core module.
@@ -86,8 +87,8 @@ means the raw source quantity is at least the wanted quantity and the source ite
 ### Shipping from the pickup source
 
 An after-plugin on the core's shipment arguments builder sets the shipment's source to the source of the pickup
-location. Without it, MSI would pick a source by priority. For an order placed for a configured location the
-arguments stay untouched.
+location. Without it, MSI takes the only source assigned to the stock, or otherwise the default source. For an order
+placed for a configured location the arguments stay untouched.
 
 ### Store-view texts
 
@@ -96,12 +97,15 @@ feature of the configured locations in the core module only.
 
 ### MSI's native pickup UI
 
-MSI's own pickup features (such as the "Notify Order is Ready for Pickup" button) work on its `pickup_location_code` order attribute, which this module does not set, so they stay silent for
-`pppickup_*` orders. The native Ship button still shows. Mirroring the location code into the native attribute is
-planned as a later processor of the core's order-placement composite and is not part of `0.1.0`.
+MSI's own pickup features (such as the "Notify Order is Ready for Pickup" button) work on its
+`pickup_location_code` order attribute, which this module does not set, so they stay silent for `pppickup_*` orders. The
+native Ship button still shows. Mirroring the location code into the native attribute
+is planned as a later processor of the core's order-placement composite and is not part of `0.1.0`.
 
 ## Known limits
 
+- A website that uses the default stock only has the `default` source, so only that source can be a pickup location
+  (when it is flagged), and its placeholder address shows unless you fill it in.
 - Availability is the raw source quantity, see above; a cart can pass the check while reservations leave it not
   salable at that source.
 - MSI refuses to split the components of a "Ship Together" bundle over several sources, so such components can only

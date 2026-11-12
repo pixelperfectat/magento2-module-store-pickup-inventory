@@ -3,7 +3,8 @@
     "source": {
         "directories": [
             "src/Api",
-            "src/Service"
+            "src/Service",
+            "src/Plugin"
         ]
     },
     "mutators": {

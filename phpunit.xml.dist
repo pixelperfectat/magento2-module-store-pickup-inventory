@@ -8,6 +8,7 @@
         <include>
             <directory suffix=".php">src/Api</directory>
             <directory suffix=".php">src/Service</directory>
+            <directory suffix=".php">src/Plugin</directory>
         </include>
     </coverage>
     <testsuites>
