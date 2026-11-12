@@ -25,6 +25,7 @@ use Magento\TestFramework\Helper\Bootstrap;
 use PHPUnit\Framework\TestCase;
 use PixelPerfect\StorePickupInventory\Test\Integration\Fixture\SandboxStateTrait;
 
+// the lab's symlinked package has no dev autoload
 require_once __DIR__ . '/../Fixture/SandboxStateTrait.php';
 
 /**

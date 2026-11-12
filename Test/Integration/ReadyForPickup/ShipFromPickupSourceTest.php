@@ -29,8 +29,30 @@ use PixelPerfect\StorePickup\Api\Service\ReadyForPickupServiceInterface;
 use PixelPerfect\StorePickup\Test\Integration\Fixture\PickupOrderTrait;
 use PixelPerfect\StorePickupInventory\Test\Integration\Fixture\SandboxStateTrait;
 
+// the lab's symlinked package has no dev autoload
 require_once __DIR__ . '/../Fixture/SandboxStateTrait.php';
-require_once __DIR__ . '/../../../../magento2-module-store-pickup/Test/Integration/Fixture/PickupOrderTrait.php';
+(static function (): void {
+    $relative = '/Test/Integration/Fixture/PickupOrderTrait.php';
+    $tried = [];
+    if (class_exists(\Composer\InstalledVersions::class)
+        && \Composer\InstalledVersions::isInstalled('pixelperfectat/magento2-module-store-pickup')
+    ) {
+        $installPath = \Composer\InstalledVersions::getInstallPath('pixelperfectat/magento2-module-store-pickup');
+        $tried[] = (string) $installPath . $relative;
+    }
+    $tried[] = __DIR__ . '/../../../../magento2-module-store-pickup' . $relative;
+    foreach ($tried as $path) {
+        if (is_file($path)) {
+            require_once $path;
+
+            return;
+        }
+    }
+
+    throw new \RuntimeException(
+        'The core package test trait PickupOrderTrait was not found; tried: ' . implode(', ', $tried)
+    );
+})();
 
 /**
  * A ready-for-pickup order ships from the pickup source it was placed for, and that source is deducted.
