@@ -23,4 +23,8 @@
             <argument name="logger" xsi:type="object">PixelPerfect\StorePickup\Logger</argument>
         </arguments>
     </type>
+    <type name="PixelPerfect\StorePickup\Api\Service\ShipmentArgumentsBuilderInterface">
+        <plugin name="pixelperfect_storepickupinventory_set_pickup_source_code"
+                type="PixelPerfect\StorePickupInventory\Plugin\StorePickup\Api\Service\ShipmentArgumentsBuilderInterface\SetPickupSourceCode"/>
+    </type>
 </config>

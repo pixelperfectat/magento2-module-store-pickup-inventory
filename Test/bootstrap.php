@@ -10,3 +10,7 @@ if (!interface_exists(\Magento\InventoryApi\Api\Data\SourceExtensionInterface::c
 if (!class_exists(\PixelPerfect\StorePickup\Model\Data\PickupLocationFactory::class)) {
     require __DIR__ . '/Stubs/PickupLocationFactory.php';
 }
+
+if (!interface_exists(\Magento\Sales\Api\Data\ShipmentCreationArgumentsExtensionInterface::class)) {
+    require __DIR__ . '/Stubs/ShipmentCreationArgumentsExtension.php';
+}

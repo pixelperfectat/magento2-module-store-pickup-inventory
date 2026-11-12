@@ -17,3 +17,10 @@ parameters:
             identifier: method.notFound
             path: src/Service/LocationProvider/MsiSourceLocationProvider.php
             count: 3
+        # Same for ShipmentCreationArgumentsExtensionInterface: its source_code attribute comes from
+        # Magento_InventoryShipping, which PHPStan's generated stand-in does not see.
+        -
+            message: '#^Call to an undefined method Magento\\Sales\\Api\\Data\\ShipmentCreationArgumentsExtensionInterface::setSourceCode\(\)\.$#'
+            identifier: method.notFound
+            path: src/Plugin/StorePickup/Api/Service/ShipmentArgumentsBuilderInterface/SetPickupSourceCode.php
+            count: 1
