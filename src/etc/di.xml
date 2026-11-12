@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="PixelPerfect\StorePickupInventory\Api\Service\SourceCodeMapperInterface"
+                type="PixelPerfect\StorePickupInventory\Service\SourceCodeMapper"/>
+
+    <type name="PixelPerfect\StorePickup\Service\LocationProvider\CompositeLocationProvider">
+        <arguments>
+            <argument name="providers" xsi:type="array">
+                <item name="msi_sources" xsi:type="object" sortOrder="20">PixelPerfect\StorePickupInventory\Service\LocationProvider\MsiSourceLocationProvider</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="PixelPerfect\StorePickupInventory\Service\LocationProvider\MsiSourceLocationProvider">
+        <arguments>
+            <argument name="logger" xsi:type="object">PixelPerfect\StorePickup\Logger</argument>
+        </arguments>
+    </type>
+</config>
