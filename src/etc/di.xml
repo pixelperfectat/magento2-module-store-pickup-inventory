@@ -11,6 +11,13 @@
             </argument>
         </arguments>
     </type>
+    <type name="PixelPerfect\StorePickup\Service\Availability\CompositeAvailabilityChecker">
+        <arguments>
+            <argument name="checkers" xsi:type="array">
+                <item name="msi_salable" xsi:type="object" sortOrder="20">PixelPerfect\StorePickupInventory\Service\Availability\MsiSalableChecker</item>
+            </argument>
+        </arguments>
+    </type>
     <type name="PixelPerfect\StorePickupInventory\Service\LocationProvider\MsiSourceLocationProvider">
         <arguments>
             <argument name="logger" xsi:type="object">PixelPerfect\StorePickup\Logger</argument>
