@@ -38,6 +38,8 @@ class MsiSalableCheckerTest extends TestCase
     /** @var list<array{string, mixed, string}> */
     private array $filters = [];
 
+    private int $configLookups = 0;
+
     /** @var array<string, bool> sku => manage stock */
     private array $manageStock = [];
 
@@ -48,6 +50,7 @@ class MsiSalableCheckerTest extends TestCase
         $this->stockConfiguration->method('execute')->willReturnCallback(
             function (string $sku, int $stockId): StockItemConfigurationInterface {
                 self::assertSame(self::STOCK_ID, $stockId);
+                ++$this->configLookups;
                 $configuration = $this->createMock(StockItemConfigurationInterface::class);
                 $configuration->method('isManageStock')->willReturn($this->manageStock[$sku] ?? true);
 
@@ -325,5 +328,29 @@ class MsiSalableCheckerTest extends TestCase
         $this->sourceHas([$this->sourceItem('bundle-part', 5)]);
 
         self::assertFalse($this->checker()->isAvailable($this->location(self::SOURCE), $this->request($bundle, $selection)));
+    }
+
+    public function testLocationIndependentWorkIsDoneOnceForTheSameCartAcrossLocations(): void
+    {
+        $this->sourceHas([$this->sourceItem('a', 5), $this->sourceItem('b', 5)]);
+        $checker = $this->checker();
+        $request = $this->request($this->item('a', 1), $this->item('b', 1));
+
+        self::assertTrue($checker->isAvailable($this->location('vienna_1'), $request));
+        self::assertTrue($checker->isAvailable($this->location('graz_1'), $request));
+
+        self::assertSame(2, $this->configLookups, 'one lookup per SKU, not per SKU and location');
+    }
+
+    public function testAnotherCartIsNotServedFromTheMemo(): void
+    {
+        $this->sourceHas([$this->sourceItem('a', 5), $this->sourceItem('b', 5)]);
+        $checker = $this->checker();
+
+        self::assertTrue($checker->isAvailable($this->location(self::SOURCE), $this->request($this->item('a', 1))));
+        self::assertFalse($checker->isAvailable($this->location(self::SOURCE), $this->request($this->item('a', 9))));
+        self::assertTrue($checker->isAvailable($this->location(self::SOURCE), $this->request($this->item('b', 1))));
+
+        self::assertSame(3, $this->configLookups);
     }
 }

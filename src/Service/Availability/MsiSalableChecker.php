@@ -26,6 +26,9 @@ use PixelPerfect\StorePickup\Api\Service\AvailabilityCheckerInterface;
  */
 class MsiSalableChecker implements AvailabilityCheckerInterface
 {
+    /** @var array{int, array<string, float>, array<string, float>}|null store, quantities, managed quantities */
+    private ?array $memo = null;
+
     /**
      * Constructor.
      *
@@ -54,7 +57,7 @@ class MsiSalableChecker implements AvailabilityCheckerInterface
             return true;
         }
 
-        $wanted = $this->managedQuantities($this->quantities($request), (int) $request->getStoreId());
+        $wanted = $this->wanted($request);
         if ($wanted === []) {
             return true;
         }
@@ -67,6 +70,26 @@ class MsiSalableChecker implements AvailabilityCheckerInterface
         }
 
         return true;
+    }
+
+    /**
+     * Managed quantity per SKU of the cart.
+     *
+     * The rate request is checked once per location. The result does not depend on the location, so the last one is
+     * kept, compared by the store and the SKUs with their quantities; another cart or store computes it anew.
+     *
+     * @param RateRequest $request
+     * @return array<string, float>
+     */
+    private function wanted(RateRequest $request): array
+    {
+        $storeId = (int) $request->getStoreId();
+        $quantities = $this->quantities($request);
+        if ($this->memo === null || $this->memo[0] !== $storeId || $this->memo[1] !== $quantities) {
+            $this->memo = [$storeId, $quantities, $this->managedQuantities($quantities, $storeId)];
+        }
+
+        return $this->memo[2];
     }
 
     /**
