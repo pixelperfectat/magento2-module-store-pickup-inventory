@@ -1,0 +1,19 @@
+{
+    "name": "pixelperfectat/magento2-module-store-pickup-inventory",
+    "description": "Store pickup for MSI: pickup-active inventory sources as pickup locations, salability per source, and shipping from the pickup source",
+    "type": "magento2-module",
+    "license": "MIT",
+    "require": {
+        "php": "^8.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "PixelPerfect\\StorePickupInventory\\": "src/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "0.1.x-dev"
+        }
+    }
+}
