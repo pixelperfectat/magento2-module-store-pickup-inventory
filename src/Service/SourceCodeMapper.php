@@ -7,6 +7,9 @@ use PixelPerfect\StorePickupInventory\Api\Service\SourceCodeMapperInterface;
 
 /**
  * Keeps valid source codes and replaces all others by a prefix plus the start of their hash.
+ *
+ * A valid code that looks like such a hashed code (the prefix plus the hash length in hex characters) is
+ * hashed too, so a hashed code can only come from the hash of exactly one source code.
  */
 class SourceCodeMapper implements SourceCodeMapperInterface
 {
@@ -34,10 +37,23 @@ class SourceCodeMapper implements SourceCodeMapperInterface
      */
     public function toLocationCode(string $sourceCode): string
     {
-        if ($this->resolver->isValidLocationCode($sourceCode)) {
+        if ($this->resolver->isValidLocationCode($sourceCode) && !$this->looksHashed($sourceCode)) {
             return $sourceCode;
         }
 
         return $this->prefix . substr(hash($this->algorithm, $sourceCode), 0, $this->hashLength);
+    }
+
+    /**
+     * Whether a code has the shape of a hashed code.
+     *
+     * @param string $code
+     * @return bool
+     */
+    private function looksHashed(string $code): bool
+    {
+        return strlen($code) === strlen($this->prefix) + $this->hashLength
+            && str_starts_with($code, $this->prefix)
+            && ctype_xdigit(substr($code, strlen($this->prefix)));
     }
 }

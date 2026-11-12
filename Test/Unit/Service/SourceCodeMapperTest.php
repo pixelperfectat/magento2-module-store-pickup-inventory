@@ -86,4 +86,22 @@ class SourceCodeMapperTest extends TestCase
 
         self::assertSame('x' . substr(md5('Vienna-1'), 0, 8), $mapper->toLocationCode('Vienna-1'));
     }
+
+    public function testValidCodeShapedLikeAHashedCodeIsHashedToo(): void
+    {
+        $lookalike = 's' . substr(sha1('Vienna-1'), 0, 16);
+
+        self::assertNotSame($lookalike, $this->mapper->toLocationCode($lookalike));
+        self::assertNotSame(
+            $this->mapper->toLocationCode('Vienna-1'),
+            $this->mapper->toLocationCode($lookalike)
+        );
+    }
+
+    public function testValidCodeOnlyResemblingAHashedCodeIsKept(): void
+    {
+        foreach (['s' . str_repeat('a', 15), 's' . str_repeat('a', 17), 'x' . str_repeat('a', 16), 's' . str_repeat('g', 16)] as $code) {
+            self::assertSame($code, $this->mapper->toLocationCode($code));
+        }
+    }
 }
