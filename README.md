@@ -3,7 +3,7 @@
 Multi-Source Inventory companion for
 [`pixelperfectat/magento2-module-store-pickup`](https://github.com/pixelperfectat/magento2-module-store-pickup).
 It offers pickup-active inventory sources as pickup locations, offers a location only where the cart is in stock, and
-ships "ready for pickup" orders from that source. The module is not released yet.
+ships "ready for pickup" orders from that source.
 
 ![Pickup rates at checkout: only the source that holds the cart item
 is offered](docs/screenshots/hyva-checkout-msi-pickup-rates.jpg)
