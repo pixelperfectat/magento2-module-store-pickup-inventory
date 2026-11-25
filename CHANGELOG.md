@@ -1,9 +1,13 @@
 # Changelog
 
 All notable changes to this project are documented in this file.
-The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [0.1.0] - 2026-11-25
 
 ### Added
 
@@ -16,3 +20,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Ready-for-pickup orders ship from the pickup source, through a plugin on the core's shipment arguments builder.
 - README with requirements, source fields used, code mapping, provider order, sort order, availability semantics
   and known limits.
+
+[Unreleased]: https://github.com/pixelperfectat/magento2-module-store-pickup-inventory/compare/0.1.0...HEAD
+[0.1.0]: https://github.com/pixelperfectat/magento2-module-store-pickup-inventory/releases/tag/0.1.0
