@@ -1,0 +1,26 @@
+includes:
+    # Shared level, bootstrap (bitexpert/phpstan-magento) and defaults.
+    - vendor/pixelperfectat/coding-standard/phpstan.neon
+    - phpstan-baseline.neon
+
+parameters:
+    phpVersion: 80300
+    paths:
+        - src
+    excludePaths:
+        - '*.sync-conflict-*'
+    ignoreErrors:
+        # Magento generates SourceExtensionInterface from the extension_attributes.xml of all installed modules;
+        # the stand-in PHPStan generates only knows this package, not Magento_InventoryInStorePickupApi's attributes.
+        -
+            message: '#^Call to an undefined method Magento\\InventoryApi\\Api\\Data\\SourceExtensionInterface::(getFrontendName|getFrontendDescription|getIsPickupLocationActive)\(\)\.$#'
+            identifier: method.notFound
+            path: src/Service/LocationProvider/MsiSourceLocationProvider.php
+            count: 3
+        # Same for ShipmentCreationArgumentsExtensionInterface: its source_code attribute comes from
+        # Magento_InventoryShipping, which PHPStan's generated stand-in does not see.
+        -
+            message: '#^Call to an undefined method Magento\\Sales\\Api\\Data\\ShipmentCreationArgumentsExtensionInterface::setSourceCode\(\)\.$#'
+            identifier: method.notFound
+            path: src/Plugin/StorePickup/Api/Service/ShipmentArgumentsBuilderInterface/SetPickupSourceCode.php
+            count: 1

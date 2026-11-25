@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference for="PixelPerfect\StorePickupInventory\Api\Service\SourceCodeMapperInterface"
+                type="PixelPerfect\StorePickupInventory\Service\SourceCodeMapper"/>
+
+    <type name="PixelPerfect\StorePickup\Service\LocationProvider\CompositeLocationProvider">
+        <arguments>
+            <argument name="providers" xsi:type="array">
+                <item name="msi_sources" xsi:type="object" sortOrder="20">PixelPerfect\StorePickupInventory\Service\LocationProvider\MsiSourceLocationProvider</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="PixelPerfect\StorePickup\Service\Availability\CompositeAvailabilityChecker">
+        <arguments>
+            <argument name="checkers" xsi:type="array">
+                <item name="msi_salable" xsi:type="object" sortOrder="20">PixelPerfect\StorePickupInventory\Service\Availability\MsiSalableChecker</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="PixelPerfect\StorePickupInventory\Service\LocationProvider\MsiSourceLocationProvider">
+        <arguments>
+            <argument name="logger" xsi:type="object">PixelPerfect\StorePickup\Logger</argument>
+        </arguments>
+    </type>
+    <type name="PixelPerfect\StorePickup\Api\Service\ShipmentArgumentsBuilderInterface">
+        <plugin name="pixelperfect_storepickupinventory_set_pickup_source_code"
+                type="PixelPerfect\StorePickupInventory\Plugin\StorePickup\Api\Service\ShipmentArgumentsBuilderInterface\SetPickupSourceCode"/>
+    </type>
+</config>
